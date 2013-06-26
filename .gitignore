@@ -21,7 +21,6 @@
 /libtool
 /libtransmission/*-test
 /libtransmission/test-peer-id
-/libtransmission/version.h
 /ltmain.sh
 /m4/intltool.m4
 /m4/libtool.m4

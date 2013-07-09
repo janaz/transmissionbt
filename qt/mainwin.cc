@@ -1399,6 +1399,7 @@ TrMainWindow :: dragEnterEvent (QDragEnterEvent * event)
   const QMimeData * mime = event->mimeData ();
 
   if (mime->hasFormat ("application/x-bittorrent")
+        || mime->hasUrls()
         || mime->text ().trimmed ().endsWith (".torrent", Qt::CaseInsensitive)
         || mime->text ().startsWith ("magnet:", Qt::CaseInsensitive))
     event->acceptProposedAction ();
@@ -1407,13 +1408,32 @@ TrMainWindow :: dragEnterEvent (QDragEnterEvent * event)
 void
 TrMainWindow :: dropEvent (QDropEvent * event)
 {
-  QString key = event->mimeData ()->text ().trimmed ();
+  QStringList list;
 
-  const QUrl url (key);
-  if (url.scheme () == "file")
-    key = QUrl::fromPercentEncoding (url.path ().toUtf8 ());
+  if (event->mimeData()->hasText())
+    {
+      list = event->mimeData()->text().trimmed().split('\n');
+    }
+  else if (event->mimeData()->hasUrls())
+    {
+      foreach (QUrl url, event->mimeData()->urls())
+        list.append(url.toLocalFile());
+    }
 
-  dynamic_cast<MyApp*> (QApplication::instance ())->addTorrent (key);
+  foreach (QString entry, list)
+    {
+      QString key = entry.trimmed();
+
+      if (!key.isEmpty())
+        {
+          const QUrl url (key);
+
+          if (url.scheme () == "file")
+            key = QUrl::fromPercentEncoding (url.path().toUtf8());
+
+          dynamic_cast<MyApp*> (QApplication::instance ())->addTorrent (key);
+        }
+    }
 }
 
 /***

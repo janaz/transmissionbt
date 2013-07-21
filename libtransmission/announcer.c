@@ -964,11 +964,12 @@ getRetryInterval (const tr_tracker * t)
 {
   switch (t->consecutiveFailures)
     {
-      case 0:  return 20;
-      case 1:  return tr_cryptoWeakRandInt (60) + (60 * 5);
-      case 2:  return tr_cryptoWeakRandInt (60) + (60 * 15);
-      case 3:  return tr_cryptoWeakRandInt (60) + (60 * 30);
-      case 4:  return tr_cryptoWeakRandInt (60) + (60 * 60);
+      case 0:  return 0;
+      case 1:  return 20;
+      case 2:  return tr_cryptoWeakRandInt (60) + (60 * 5);
+      case 3:  return tr_cryptoWeakRandInt (60) + (60 * 15);
+      case 4:  return tr_cryptoWeakRandInt (60) + (60 * 30);
+      case 5:  return tr_cryptoWeakRandInt (60) + (60 * 60);
       default: return tr_cryptoWeakRandInt (60) + (60 * 120);
     }
 }

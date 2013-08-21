@@ -746,7 +746,7 @@ addField (tr_torrent       * const tor,
         if (tr_torrentHasMetadata (tor))
           {
             size_t byte_count = 0;
-            void * bytes = tr_cpCreatePieceBitfield (&tor->completion, &byte_count);
+            void * bytes = tr_torrentCreatePieceBitfield (tor, &byte_count);
             char * str = tr_base64_encode (bytes, byte_count, NULL);
             tr_variantDictAddStr (d, key, str!=NULL ? str : "");
             tr_free (str);
@@ -1587,16 +1587,16 @@ addTorrentImpl (struct tr_rpc_idle_data * data, tr_ctor * ctor)
       key = TR_KEY_torrent_added;
       result = NULL;
     }
-  else if (err == TR_PARSE_ERR)
-    {
-      key = 0;
-      result = "invalid or corrupt torrent file";
-    }
   else if (err == TR_PARSE_DUPLICATE)
     {
       tor = tr_torrentFindFromId (data->session, duplicate_id);
       key = TR_KEY_torrent_duplicate;
       result = "duplicate torrent";
+    }
+  else /* err == TR_PARSE_ERR */
+    {
+      key = 0;
+      result = "invalid or corrupt torrent file";
     }
 
   if (tor && key)

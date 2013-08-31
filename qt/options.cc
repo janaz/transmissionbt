@@ -315,7 +315,7 @@ Options :: reload ()
         break;
 
       case AddData::METAINFO:
-        tr_ctorSetMetainfo (ctor, (const uint8_t*)myAdd.metainfo.constData (), myAdd.metainfo.size ());
+        tr_ctorSetMetainfo (ctor, (const quint8*)myAdd.metainfo.constData (), myAdd.metainfo.size ());
         break;
 
       default:

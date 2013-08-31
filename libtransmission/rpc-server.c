@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h> /* memcpy */
-#include <limits.h> /* INT_MAX */
 
 #include <unistd.h>    /* close */
 
@@ -844,7 +843,9 @@ void
 tr_rpcSetWhitelistEnabled (tr_rpc_server  * server,
                            bool             isEnabled)
 {
-  server->isWhitelistEnabled = isEnabled != 0;
+  assert (tr_isBool (isEnabled));
+
+  server->isWhitelistEnabled = isEnabled;
 }
 
 bool

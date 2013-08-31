@@ -11,6 +11,7 @@
  */
 
 #include <QFile>
+#include <QDir>
 
 #include <libtransmission/transmission.h>
 #include <libtransmission/utils.h> // tr_base64_encode()
@@ -33,7 +34,7 @@ AddData :: set( const QString& key )
     }
     else if( QFile(key).exists( ) )
     {
-        filename = key;
+        filename = QDir::fromNativeSeparators( key );
         type = FILENAME;
 
         QFile file( key );
@@ -93,7 +94,7 @@ AddData :: readableName( ) const
         case METAINFO: {
             tr_info inf;
             tr_ctor * ctor = tr_ctorNew( NULL );
-            tr_ctorSetMetainfo( ctor, (const uint8_t*)metainfo.constData(), metainfo.size() );
+            tr_ctorSetMetainfo( ctor, (const quint8*)metainfo.constData(), metainfo.size() );
             if( tr_torrentParse( ctor, &inf ) == TR_PARSE_OK  ) {
                 ret = QString::fromUtf8( inf.name ); // metainfo is required to be UTF-8
                 tr_metainfoFree( &inf );

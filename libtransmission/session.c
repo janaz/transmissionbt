@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <errno.h> /* ENOENT */
+#include <limits.h> /* INT_MAX */
 #include <stdlib.h>
 #include <string.h> /* memcpy */
 
@@ -2027,8 +2028,9 @@ void
 tr_sessionSetPexEnabled (tr_session * session, bool enabled)
 {
   assert (tr_isSession (session));
+  assert (tr_isBool (enabled));
 
-  session->isPexEnabled = enabled != 0;
+  session->isPexEnabled = enabled;
 }
 
 bool
@@ -2070,7 +2072,7 @@ tr_sessionSetDHTEnabled (tr_session * session, bool enabled)
   assert (tr_isSession (session));
   assert (tr_isBool (enabled));
 
-  if ((enabled != 0) != (session->isDHTEnabled != 0))
+  if (enabled != session->isDHTEnabled)
     tr_runInEventThread (session, toggleDHTImpl, session);
 }
 
@@ -2111,7 +2113,7 @@ tr_sessionSetUTPEnabled (tr_session * session, bool enabled)
   assert (tr_isSession (session));
   assert (tr_isBool (enabled));
 
-  if ((enabled != 0) != (session->isUTPEnabled != 0))
+  if (enabled != session->isUTPEnabled)
     tr_runInEventThread (session, toggle_utp, session);
 }
 
@@ -2140,7 +2142,7 @@ tr_sessionSetLPDEnabled (tr_session * session, bool enabled)
   assert (tr_isSession (session));
   assert (tr_isBool (enabled));
 
-  if ((enabled != 0) != (session->isLPDEnabled != 0))
+  if (enabled != session->isLPDEnabled)
     tr_runInEventThread (session, toggleLPDImpl, session);
 }
 
@@ -2371,8 +2373,9 @@ tr_blocklistSetEnabled (tr_session * session, bool isEnabled)
   tr_list * l;
 
   assert (tr_isSession (session));
+  assert (tr_isBool (isEnabled));
 
-  session->isBlocklistEnabled = isEnabled != 0;
+  session->isBlocklistEnabled = isEnabled;
 
   for (l=session->blocklists; l!=NULL; l=l->next)
     tr_blocklistFileSetEnabled (l->data, isEnabled);

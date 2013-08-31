@@ -44,6 +44,11 @@ extern "C" {
 #include <inttypes.h> /* uintN_t */
 #include <time.h> /* time_t */
 
+#ifdef WIN32
+ #define __USE_MINGW_ANSI_STDIO 1
+ #define __STDC_FORMAT_MACROS 1
+#endif
+
 #if !defined (__cplusplus)
  #ifdef HAVE_STDBOOL_H
   #include <stdbool.h>
@@ -55,13 +60,27 @@ extern "C" {
 #endif
 
 #ifndef PRId64
- #define PRId64 "lld"
+ #ifdef WIN32
+  #define PRId64 "I64"
+ #else
+  #define PRId64 "lld"
+ #endif
 #endif
+
 #ifndef PRIu64
- #define PRIu64 "llu"
+ #ifdef WIN32
+  #define PRIu64 "I64u"
+ #else
+  #define PRIu64 "llu"
+ #endif
 #endif
+
 #ifndef PRIu32
- #define PRIu32 "lu"
+ #ifdef WIN32
+  #define PRIu32 "u"
+ #else
+  #define PRIu32 "lu"
+ #endif
 #endif
 
 #if defined (WIN32) && defined (_MSC_VER)

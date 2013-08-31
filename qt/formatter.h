@@ -13,8 +13,6 @@
 #ifndef QTR_UNITS
 #define QTR_UNITS
 
-#include <inttypes.h> /* uint64_t */
-
 #include <QString>
 #include <QObject>
 #include <QIcon>

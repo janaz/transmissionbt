@@ -10,6 +10,8 @@
  * $Id$
  */
 
+#include <algorithm> // std::min()
+
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -54,7 +56,7 @@ FileAdded :: executed (int64_t tag, const QString& result, struct tr_variant * a
   if (tag != myTag)
     return;
 
-  if ( (result == "success") && !myDelFile.isEmpty ())
+  if ((result == "success") && !myDelFile.isEmpty ())
     {
       QFile file (myDelFile);
       file.setPermissions (QFile::ReadOwner | QFile::WriteOwner);
@@ -512,7 +514,7 @@ Options :: onDestinationsSelected (const QStringList& destinations)
 {
   if (destinations.size () == 1)
     {
-      const QString& destination (destinations.first ());
+      QString destination = Utils::removeTrailingDirSeparator (destinations.first ());
       myFreespaceLabel->setPath (destination);
       myLocalDestination.setPath (destination);
       refreshDestinationButton ();

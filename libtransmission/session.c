@@ -180,7 +180,7 @@ free_incoming_peer_port (tr_session * session)
 }
 
 static void
-accept_incoming_peer (int fd, short what UNUSED, void * vsession)
+accept_incoming_peer (evutil_socket_t fd, short what UNUSED, void * vsession)
 {
   int clientSocket;
   tr_port clientPort;
@@ -548,7 +548,7 @@ tr_sessionSaveSettings (tr_session       * session,
  * in the case of a crash, unclean shutdown, clumsy user, etc.
  */
 static void
-onSaveTimer (int foo UNUSED, short bar UNUSED, void * vsession)
+onSaveTimer (evutil_socket_t foo UNUSED, short bar UNUSED, void * vsession)
 {
   tr_torrent * tor = NULL;
   tr_session * session = vsession;
@@ -629,7 +629,7 @@ tr_sessionInit (const char  * tag,
 static void turtleCheckClock (tr_session * s, struct tr_turtle_info * t);
 
 static void
-onNowTimer (int foo UNUSED, short bar UNUSED, void * vsession)
+onNowTimer (evutil_socket_t foo UNUSED, short bar UNUSED, void * vsession)
 {
   int usec;
   const int min = 100;
@@ -669,14 +669,14 @@ onNowTimer (int foo UNUSED, short bar UNUSED, void * vsession)
   **/
 
   /* schedule the next timer for right after the next second begins */
-  gettimeofday (&tv, NULL);
+  tr_gettimeofday (&tv);
   usec = 1000000 - tv.tv_usec;
   if (usec > max)
     usec = max;
   if (usec < min)
     usec = min;
   tr_timerAdd (session->nowTimer, 0, usec);
-  /* fprintf (stderr, "time %zu sec, %zu microsec\n", (size_t)tr_time (), (size_t)tv.tv_usec); */
+  /* fprintf (stderr, "time %"TR_PRIuSIZE" sec, %"TR_PRIuSIZE" microsec\n", (size_t)tr_time (), (size_t)tv.tv_usec); */
 }
 
 static void loadBlocklists (tr_session * session);
@@ -693,7 +693,7 @@ tr_sessionInitImpl (void * vdata)
   assert (tr_variantIsDict (clientSettings));
 
   dbgmsg ("tr_sessionInit: the session's top-level bandwidth object is %p",
-          &session->bandwidth);
+          (void*)&session->bandwidth);
 
   tr_variantInitDict (&settings, 0);
   tr_sessionGetDefaultSettings (&settings);
@@ -1868,7 +1868,7 @@ tr_sessionClose (tr_session * session)
 
   assert (tr_isSession (session));
 
-  dbgmsg ("shutting down transmission session %p... now is %zu, deadline is %zu", session, (size_t)time (NULL), (size_t)deadline);
+  dbgmsg ("shutting down transmission session %p... now is %"TR_PRIuSIZE", deadline is %"TR_PRIuSIZE, (void*)session, (size_t)time (NULL), (size_t)deadline);
 
   /* close the session */
   tr_runInEventThread (session, sessionCloseImpl, session);
@@ -1885,8 +1885,8 @@ tr_sessionClose (tr_session * session)
   while ((session->shared || session->web || session->announcer || session->announcer_udp)
            && !deadlineReached (deadline))
     {
-      dbgmsg ("waiting on port unmap (%p) or announcer (%p)... now %zu deadline %zu",
-              session->shared, session->announcer, (size_t)time (NULL), (size_t)deadline);
+      dbgmsg ("waiting on port unmap (%p) or announcer (%p)... now %"TR_PRIuSIZE" deadline %"TR_PRIuSIZE,
+              (void*)session->shared, (void*)session->announcer, (size_t)time (NULL), (size_t)deadline);
       tr_wait_msec (50);
     }
 
@@ -1897,7 +1897,7 @@ tr_sessionClose (tr_session * session)
   while (session->events != NULL)
     {
       static bool forced = false;
-      dbgmsg ("waiting for libtransmission thread to finish... now %zu deadline %zu", (size_t)time (NULL), (size_t)deadline);
+      dbgmsg ("waiting for libtransmission thread to finish... now %"TR_PRIuSIZE" deadline %"TR_PRIuSIZE, (size_t)time (NULL), (size_t)deadline);
       tr_wait_msec (100);
 
       if (deadlineReached (deadline) && !forced)

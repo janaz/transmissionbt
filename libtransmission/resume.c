@@ -164,8 +164,8 @@ loadDND (tr_variant * dict, tr_torrent * tor)
     }
   else
     {
-      tr_logAddTorDbg (tor, "Couldn't load DND flags. DND list (%p) has %zu children; torrent has %d files",
-                       list, tr_variantListSize (list), (int)n);
+      tr_logAddTorDbg (tor, "Couldn't load DND flags. DND list (%p) has %"TR_PRIuSIZE" children; torrent has %d files",
+                       (void*)list, tr_variantListSize (list), (int)n);
     }
 
   return ret;

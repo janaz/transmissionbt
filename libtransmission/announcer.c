@@ -159,7 +159,7 @@ tr_announcerHasBacklog (const struct tr_announcer * announcer)
 }
 
 static void
-onUpkeepTimer (int foo UNUSED, short bar UNUSED, void * vannouncer);
+onUpkeepTimer (evutil_socket_t foo UNUSED, short bar UNUSED, void * vannouncer);
 
 void
 tr_announcerInit (tr_session * session)
@@ -407,7 +407,7 @@ typedef struct tr_torrent_tiers
     tr_tracker * trackers;
     int tracker_count;
 
-    tr_tracker_callback * callback;
+    tr_tracker_callback callback;
     void * callbackData;
 }
 tr_torrent_tiers;
@@ -481,7 +481,7 @@ publishMessage (tr_tier * tier, const char * msg, int type)
         if (tier->currentTracker)
             event.tracker = tier->currentTracker->announce;
 
-        tiers->callback (tier->tor, &event, tiers->callbackData);
+        (*tiers->callback) (tier->tor, &event, tiers->callbackData);
     }
 }
 
@@ -533,7 +533,7 @@ publishPeersPex (tr_tier * tier, int seeds, int leechers,
         e.pexCount = n;
         dbgmsg (tier, "got %d peers; seed prob %d", n, (int)e.seedProbability);
 
-        tier->tor->tiers->callback (tier->tor, &e, NULL);
+        (*tier->tor->tiers->callback) (tier->tor, &e, NULL);
     }
 }
 
@@ -691,7 +691,7 @@ addTorrentToTier (tr_torrent_tiers * tt, tr_torrent * tor)
 
 tr_torrent_tiers *
 tr_announcerAddTorrent (tr_torrent           * tor,
-                        tr_tracker_callback  * callback,
+                        tr_tracker_callback    callback,
                         void                 * callbackData)
 {
     tr_torrent_tiers * tiers;
@@ -1035,8 +1035,8 @@ on_announce_done (const tr_announce_response  * response,
                       "interval:%d "
                       "min_interval:%d "
                       "tracker_id_str:%s "
-                      "pex:%zu "
-                      "pex6:%zu "
+                      "pex:%"TR_PRIuSIZE" "
+                      "pex6:%"TR_PRIuSIZE" "
                       "err:%s "
                       "warn:%s",
                     (int)response->did_connect,
@@ -1200,7 +1200,7 @@ announce_request_free (tr_announce_request * req)
 static void
 announce_request_delegate (tr_announcer               * announcer,
                            tr_announce_request        * request,
-                           tr_announce_response_func  * callback,
+                           tr_announce_response_func    callback,
                            void                       * callback_data)
 {
     tr_session * session = announcer->session;
@@ -1287,8 +1287,8 @@ on_scrape_error (tr_session * session, tr_tier * tier, const char * errmsg)
 
     /* schedule a rescrape */
     interval = getRetryInterval (tier->currentTracker);
-    dbgmsg (tier, "Retrying scrape in %zu seconds.", (size_t)interval);
-    tr_logAddTorInfo (tier->tor, "Retrying scrape in %zu seconds.", (size_t)interval);
+    dbgmsg (tier, "Retrying scrape in %"TR_PRIuSIZE" seconds.", (size_t)interval);
+    tr_logAddTorInfo (tier->tor, "Retrying scrape in %"TR_PRIuSIZE" seconds.", (size_t)interval);
     tier->lastScrapeSucceeded = false;
     tier->scrapeAt = get_next_scrape_time (session, tier, interval);
 }
@@ -1397,7 +1397,7 @@ on_scrape_done (const tr_scrape_response * response, void * vsession)
 static void
 scrape_request_delegate (tr_announcer             * announcer,
                          const tr_scrape_request  * request,
-                         tr_scrape_response_func  * callback,
+                         tr_scrape_response_func    callback,
                          void                     * callback_data)
 {
     tr_session * session = announcer->session;
@@ -1566,7 +1566,7 @@ announceMore (tr_announcer * announcer)
 }
 
 static void
-onUpkeepTimer (int foo UNUSED, short bar UNUSED, void * vannouncer)
+onUpkeepTimer (evutil_socket_t foo UNUSED, short bar UNUSED, void * vannouncer)
 {
     tr_announcer * announcer = vannouncer;
     tr_session * session = announcer->session;

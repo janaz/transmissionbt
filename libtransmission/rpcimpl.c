@@ -900,8 +900,8 @@ addInfo (tr_torrent * tor, tr_variant * d, tr_variant * fields)
   if (n > 0)
     {
       int i;
-      const tr_info const * inf = tr_torrentInfo (tor);
-      const tr_stat const * st = tr_torrentStat ((tr_torrent*)tor);
+      const tr_info * const inf = tr_torrentInfo (tor);
+      const tr_stat * const st = tr_torrentStat ((tr_torrent*)tor);
 
       for (i=0; i<n; ++i)
         {
@@ -1633,7 +1633,7 @@ gotMetadataFromURL (tr_session       * session UNUSED,
 {
   struct add_torrent_idle_data * data = user_data;
 
-  dbgmsg ("torrentAdd: HTTP response code was %ld (%s); response length was %zu bytes",
+  dbgmsg ("torrentAdd: HTTP response code was %ld (%s); response length was %"TR_PRIuSIZE" bytes",
           response_code, tr_webGetResponseStr (response_code), response_byte_count);
 
   if (response_code==200 || response_code==221) /* http or ftp success.. */
